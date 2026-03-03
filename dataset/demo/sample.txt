@@ -1,0 +1,3 @@
+Hi, our company name is ACME Fire Protection.
+We are open from 8am to 5pm.
+If there is a sprinkler leak it is an emergency.

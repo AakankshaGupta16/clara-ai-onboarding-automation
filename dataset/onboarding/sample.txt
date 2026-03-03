@@ -1,0 +1,5 @@
+Our company name is ACME Fire Protection.
+We are open from 8am to 6pm.
+Emergency sprinkler calls must be transferred immediately.
+Transfer timeout is 60 seconds.
+Never create sprinkler jobs in ServiceTrade.

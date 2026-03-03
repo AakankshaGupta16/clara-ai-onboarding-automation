@@ -1,0 +1,31 @@
+{
+    "account_id": "ACME_001",
+    "company_name": "acme fire protection.",
+    "business_hours": {
+        "days": [],
+        "start": "8am",
+        "end": "5pm",
+        "timezone": ""
+    },
+    "office_address": "",
+    "services_supported": [],
+    "emergency_definition": [
+        "sprinkler leak"
+    ],
+    "emergency_routing_rules": {
+        "primary": "",
+        "secondary": "",
+        "fallback": ""
+    },
+    "non_emergency_routing_rules": "",
+    "call_transfer_rules": {
+        "timeout_seconds": "",
+        "retry_policy": "",
+        "fail_message": ""
+    },
+    "integration_constraints": [],
+    "after_hours_flow_summary": "",
+    "office_hours_flow_summary": "",
+    "questions_or_unknowns": [],
+    "notes": ""
+}
