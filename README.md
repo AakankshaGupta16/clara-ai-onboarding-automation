@@ -4,35 +4,73 @@
 
 This project implements a zero-cost automation pipeline that converts:
 
-Demo Call Transcript  
+**Demo Call Transcript**  
 → Structured Account Memo (v1)  
 → Retell Agent Draft Specification  
 
 Then updates that configuration using:
 
-Onboarding Transcript  
+**Onboarding Transcript**  
 → Structured Merge Update  
 → Version 2 Memo (v2)  
 → Regenerated Agent Specification  
 → Structured Change Log  
 
-The system is fully local, reproducible, idempotent, version-aware, and supports batch execution across multiple accounts.
+The system is:
+
+- Fully local  
+- Zero-cost compliant  
+- Reproducible  
+- Idempotent  
+- Version-aware  
+- Batch-capable across multiple accounts  
+
+This simulates Clara Answers’ real-world onboarding automation workflow:
+
+**Human conversations → structured operational rules → AI voice agent configuration → version-controlled updates**
+
+---
+
+## Real-World Context
+
+Clara Answers is an AI-powered voice agent built using Retell. It handles inbound calls for service trade businesses such as:
+
+- Fire protection companies  
+- Sprinkler and alarm contractors  
+- Electrical service providers  
+- HVAC and facility maintenance companies  
+
+These businesses require:
+
+- Emergency routing logic  
+- After-hours handling  
+- Inspection scheduling  
+- Call transfer protocols  
+- Integration constraints  
+- Strict operational rules  
+
+The core challenge is converting exploratory sales conversations into production-ready AI configuration safely and consistently.
+
+This project builds that automation layer.
 
 ---
 
 ## What This Implementation Covers
 
-This solution satisfies:
+This solution satisfies the assignment requirements:
 
-- 5 Demo transcripts
-- 5 Onboarding transcripts
-- Batch execution
-- Versioned memo generation (v1 → v2)
-- Structured changelog (`changes.json`)
-- Retell Agent Draft Spec generation
-- Task tracker simulation (mock Asana replacement)
-- Fully zero-cost architecture
-- Reproducible local execution
+- 5 Demo transcripts processed  
+- 5 Onboarding transcripts processed  
+- Batch execution across all accounts  
+- Versioned memo generation (v1 → v2)  
+- Structured changelog (`changes.json`)  
+- Retell Agent Draft Spec generation  
+- Prompt discipline aligned with business vs after-hours flows  
+- Safe nested merge logic  
+- Idempotent execution  
+- Task tracker simulation (mock Asana replacement)  
+- Fully zero-cost architecture  
+- Reproducible local execution  
 
 ---
 
@@ -42,12 +80,25 @@ This solution satisfies:
 
 For each demo transcript:
 
-1. Extract structured Account Memo JSON
-2. Generate preliminary Retell Agent Draft Spec
+1. Extract structured Account Memo JSON  
+2. Generate preliminary Retell Agent Draft Spec  
 3. Store under:
-   outputs/accounts/<ACCOUNT_ID>/v1/
+
+```
+outputs/accounts/<ACCOUNT_ID>/v1/
+```
+
 4. Create tracking entry in:
-   tasks/tasks.json
+
+```
+tasks/tasks.json
+```
+
+Constraints:
+
+- v1 is derived strictly from demo transcript  
+- No hallucinated values are inserted  
+- Missing data is explicitly flagged under `questions_or_unknowns`
 
 ---
 
@@ -55,14 +106,20 @@ For each demo transcript:
 
 For each onboarding transcript:
 
-1. Load existing v1 memo
-2. Extract updated fields
-3. Apply nested merge (safe update, no overwriting unrelated fields)
+1. Load existing v1 memo  
+2. Extract updated fields  
+3. Apply safe nested merge logic  
 4. Generate:
-   - v2 memo.json
-   - v2 agent_spec.json
-   - changes.json (diff log)
-5. Create tracking entry for v2
+   - v2 `memo.json`
+   - v2 `agent_spec.json`
+   - `changes.json`
+5. Create tracking entry for v2  
+
+Constraints:
+
+- Only explicitly confirmed onboarding changes are applied  
+- Unrelated configuration remains untouched  
+- Version history preserved  
 
 ---
 
@@ -83,7 +140,11 @@ clara_assignment/
 │       ├── ACCOUNT4/
 │       └── ACCOUNT5/
 │           ├── v1/
+│           │   ├── memo.json
+│           │   └── agent_spec.json
 │           ├── v2/
+│           │   ├── memo.json
+│           │   └── agent_spec.json
 │           └── changes.json
 │
 ├── scripts/
@@ -112,83 +173,135 @@ clara_assignment/
 
 Each transcript is converted into a strict JSON schema including:
 
-- account_id
-- company_name
-- business_hours
-- office_address
-- services_supported
-- emergency_definition
-- emergency_routing_rules
-- non_emergency_routing_rules
-- call_transfer_rules
-- integration_constraints
-- after_hours_flow_summary
-- office_hours_flow_summary
-- questions_or_unknowns
-- notes
+- `account_id`
+- `company_name`
+- `business_hours`
+- `office_address`
+- `services_supported`
+- `emergency_definition`
+- `emergency_routing_rules`
+- `non_emergency_routing_rules`
+- `call_transfer_rules`
+- `integration_constraints`
+- `after_hours_flow_summary`
+- `office_hours_flow_summary`
+- `questions_or_unknowns`
+- `notes`
 
-No hallucinated values are inserted.  
-Missing values are explicitly flagged.
+Rules:
+
+- No hallucinated values  
+- Missing data explicitly flagged  
+- Demo assumptions are not treated as confirmed configuration  
 
 ---
 
 ### 2. Versioning Strategy
 
-- v1 is derived strictly from demo transcript.
-- v2 is derived strictly from onboarding updates.
-- Nested dictionary merge ensures:
-  - Only changed sub-fields are updated.
-  - Unrelated fields remain untouched.
-- `changes.json` logs:
-  - field
-  - old value
-  - new value
+- v1 derived strictly from demo transcript  
+- v2 derived strictly from onboarding confirmation  
+- Nested merge ensures:
+  - Only changed sub-fields updated  
+  - Unrelated fields preserved  
+
+`changes.json` logs:
+
+- account_id  
+- version_from  
+- version_to  
+- timestamp  
+- total_changes  
+- field-level differences  
+
+Ensures auditability and traceability.
 
 ---
 
-### 3. Idempotency
+### 3. Prompt Discipline
 
-The system is safe to rerun.
+The generated Retell Agent Draft Spec includes structured call handling logic.
+
+#### Business Hours Flow
+
+- Greeting  
+- Ask purpose  
+- Collect name and phone  
+- Determine emergency  
+- Transfer per routing rules  
+- Fallback if transfer fails  
+- Ask if anything else  
+- Close politely  
+
+#### After Hours Flow
+
+- Greeting  
+- Ask purpose  
+- Confirm emergency  
+- If emergency:
+  - Collect name, number, address immediately  
+  - Attempt transfer  
+  - Fallback if transfer fails  
+- If non-emergency:
+  - Collect required details  
+  - Confirm business-hour callback  
+- Close politely  
+
+Agent behavior:
+
+- No hallucination  
+- No internal tool exposure  
+- Minimal necessary questioning  
+- Clear transfer and fallback protocols  
+
+---
+
+### 4. Idempotency
+
+Safe to rerun.
 
 If v1 exists:
+
 ```
 ACCOUNT1 v1 already exists. Skipping.
 ```
 
 If v2 exists:
+
 ```
 ACCOUNT1 v2 already exists. Skipping.
 ```
 
-This prevents duplication or accidental overwrites.
+Prevents duplication and accidental overwrites.
 
 ---
 
-### 4. Batch Processing
+### 5. Batch Processing
 
-The system processes all transcripts automatically:
+Run entire dataset with:
 
 ```
 cd scripts
 python run_all.py
 ```
 
-This runs:
+Automatically:
 
-- Demo extraction for all demo files
-- Onboarding updates for all onboarding files
-
-No manual babysitting required.
+- Processes all demo transcripts  
+- Applies onboarding updates  
+- Generates v1 and v2 outputs  
+- Updates task tracker  
 
 ---
 
-### 5. Task Tracker (Mock Integration)
+### 6. Task Tracker (Mock Integration)
 
-Instead of using Asana (paid API), a zero-cost mock tracker is implemented:
+Instead of Asana (paid API), a zero-cost local tracker is used:
 
+```
 tasks/tasks.json
+```
 
-Each v1 and v2 generation creates a structured tracking entry:
+Each v1 and v2 generation logs:
 
 ```
 {
@@ -198,25 +311,24 @@ Each v1 and v2 generation creates a structured tracking entry:
 }
 ```
 
-This simulates workflow automation integration.
+This simulates workflow automation integration while remaining zero-cost compliant.
 
 ---
 
-### 6. Zero-Cost Compliance
+### 7. Zero-Cost Compliance
 
-- Pure Python
-- No paid APIs
-- No paid LLM usage
-- No paid orchestration tools
-- Fully local execution
+- Pure Python  
+- Local JSON storage  
+- No paid APIs  
+- No paid LLM usage  
+- No paid orchestration tools  
+- Fully local execution  
 
-Meets the assignment’s zero-spend requirement.
+Reproducible on any machine with Python 3.11+.
 
 ---
 
 ## Example Output Per Account
-
-For each account:
 
 ```
 outputs/accounts/ACCOUNT1/
@@ -224,41 +336,26 @@ outputs/accounts/ACCOUNT1/
 
 Contains:
 
-- v1/memo.json
-- v1/agent_spec.json
-- v2/memo.json
-- v2/agent_spec.json
-- changes.json
+- v1/memo.json  
+- v1/agent_spec.json  
+- v2/memo.json  
+- v2/agent_spec.json  
+- changes.json  
 
----
-
-## How To Run
-
-From project root:
-
-```
-cd scripts
-python run_all.py
-```
-
-This will:
-
-- Process all demo transcripts
-- Apply all onboarding updates
-- Generate versioned outputs
-- Create tracking entries
+Demonstrates structured configuration, safe merging, and version tracking.
 
 ---
 
 ## What I Would Improve With Production Access
 
-- Real task tracker integration (Asana API)
-- Database-backed memo storage
-- Conflict detection dashboard
-- Improved NLP-based extraction
-- UI diff viewer for v1 → v2 comparison
-- Structured onboarding form ingestion
-- Deployment as a containerized service
+- Real Asana API integration  
+- Database-backed memo storage  
+- Conflict detection dashboard  
+- Schema validation layer  
+- NLP-based extraction enhancement  
+- UI diff viewer  
+- Containerized deployment  
+- Admin dashboard  
 
 ---
 
@@ -266,12 +363,14 @@ This will:
 
 This system demonstrates:
 
-- Systems thinking
-- Structured schema design
-- Safe versioned configuration management
-- Idempotent automation
-- Batch processing capability
-- Zero-cost reproducibility
-- Clear separation between exploratory (demo) and confirmed (onboarding) data
+- Systems thinking  
+- Structured schema design  
+- Safe configuration versioning  
+- Clean v1 vs v2 separation  
+- Explicit change tracking  
+- Prompt hygiene discipline  
+- Idempotent automation  
+- Batch processing capability  
+- Zero-cost reproducibility  
 
 The workflow behaves like a small internal automation product rather than a one-off script.

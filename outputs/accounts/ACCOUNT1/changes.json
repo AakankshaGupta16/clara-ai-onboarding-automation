@@ -1,6 +1,9 @@
 {
+    "account_id": "ACCOUNT1",
     "version_from": "v1",
     "version_to": "v2",
+    "timestamp": "2026-03-03T18:19:12.040630",
+    "total_changes": 2,
     "changes": [
         {
             "field": "company_name",
