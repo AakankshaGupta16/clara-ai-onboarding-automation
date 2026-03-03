@@ -16,101 +16,133 @@ Onboarding Transcript
 → Regenerated Agent Specification  
 → Structured Change Log  
 
-The system is fully local, reproducible, idempotent, and version-aware.
+The system is fully local, reproducible, idempotent, version-aware, and supports batch execution across multiple accounts.
 
 ---
 
-## Architecture
+## What This Implementation Covers
 
-The pipeline consists of two primary stages.
+This solution satisfies:
+
+- 5 Demo transcripts
+- 5 Onboarding transcripts
+- Batch execution
+- Versioned memo generation (v1 → v2)
+- Structured changelog (`changes.json`)
+- Retell Agent Draft Spec generation
+- Task tracker simulation (mock Asana replacement)
+- Fully zero-cost architecture
+- Reproducible local execution
+
+---
+
+## Architecture Overview
 
 ### Pipeline A: Demo → v1
 
-1. Read demo transcript from `dataset/demo/`
-2. Extract structured account configuration
-3. Generate:
-   - `memo.json`
-   - `agent_spec.json`
-4. Store under:
+For each demo transcript:
 
-outputs/accounts/<ACCOUNT_ID>/v1/
+1. Extract structured Account Memo JSON
+2. Generate preliminary Retell Agent Draft Spec
+3. Store under:
+   outputs/accounts/<ACCOUNT_ID>/v1/
+4. Create tracking entry in:
+   tasks/tasks.json
 
 ---
 
 ### Pipeline B: Onboarding → v2
 
-1. Read onboarding transcript from `dataset/onboarding/`
-2. Load existing v1 memo
-3. Extract updated fields
-4. Merge changes safely (no overwrite of unrelated fields)
-5. Generate:
-   - Updated `memo.json` (v2)
-   - Updated `agent_spec.json`
-   - `changes.json` (diff log)
-6. Store under:
+For each onboarding transcript:
 
-outputs/accounts/<ACCOUNT_ID>/v2/
+1. Load existing v1 memo
+2. Extract updated fields
+3. Apply nested merge (safe update, no overwriting unrelated fields)
+4. Generate:
+   - v2 memo.json
+   - v2 agent_spec.json
+   - changes.json (diff log)
+5. Create tracking entry for v2
 
 ---
 
 ## Folder Structure
+
 ```
 clara_assignment/
 │
 ├── dataset/
-│   ├── demo/
-│   └── onboarding/
+│   ├── demo/               (5 demo transcripts)
+│   └── onboarding/         (5 onboarding transcripts)
 │
 ├── outputs/
 │   └── accounts/
-│       └── SAMPLE/
+│       ├── ACCOUNT1/
+│       ├── ACCOUNT2/
+│       ├── ACCOUNT3/
+│       ├── ACCOUNT4/
+│       └── ACCOUNT5/
 │           ├── v1/
-│           │   ├── memo.json
-│           │   └── agent_spec.json
 │           ├── v2/
-│           │   ├── memo.json
-│           │   └── agent_spec.json
 │           └── changes.json
 │
 ├── scripts/
 │   ├── extractor.py
 │   ├── merge_engine.py
 │   ├── prompt_builder.py
+│   ├── task_tracker.py
 │   ├── run_onboarding.py
 │   └── run_all.py
+│
+├── tasks/
+│   └── tasks.json
+│
+├── workflows/
+│   └── local_pipeline_overview.md
 │
 ├── .gitignore
 └── README.md
 ```
+
 ---
 
 ## Key Design Decisions
 
 ### 1. Structured Schema
 
-All transcripts are converted into a structured memo schema including:
+Each transcript is converted into a strict JSON schema including:
 
-- Business hours  
-- Emergency definitions  
-- Routing rules  
-- Integration constraints  
-- Call transfer logic  
-- Unknown fields explicitly flagged  
+- account_id
+- company_name
+- business_hours
+- office_address
+- services_supported
+- emergency_definition
+- emergency_routing_rules
+- non_emergency_routing_rules
+- call_transfer_rules
+- integration_constraints
+- after_hours_flow_summary
+- office_hours_flow_summary
+- questions_or_unknowns
+- notes
 
-No hallucinated data is inserted.
+No hallucinated values are inserted.  
+Missing values are explicitly flagged.
 
 ---
 
 ### 2. Versioning Strategy
 
 - v1 is derived strictly from demo transcript.
-- v2 updates only fields explicitly confirmed during onboarding.
-- A structured `changes.json` logs:
-  - Field name
-  - Old value
-  - New value
-
-Nested dictionary merging ensures only changed sub-fields are updated.
+- v2 is derived strictly from onboarding updates.
+- Nested dictionary merge ensures:
+  - Only changed sub-fields are updated.
+  - Unrelated fields remain untouched.
+- `changes.json` logs:
+  - field
+  - old value
+  - new value
 
 ---
 
@@ -118,30 +150,85 @@ Nested dictionary merging ensures only changed sub-fields are updated.
 
 The system is safe to rerun.
 
-If v1 already exists:
-SAMPLE v1 already exists. Skipping.
+If v1 exists:
+```
+ACCOUNT1 v1 already exists. Skipping.
+```
 
-If v2 already exists:
-SAMPLE v2 already exists. Skipping.
+If v2 exists:
+```
+ACCOUNT1 v2 already exists. Skipping.
+```
 
-This ensures:
-
-- No accidental overwrites  
-- Safe batch execution  
-- Production-style behavior  
+This prevents duplication or accidental overwrites.
 
 ---
 
-### 4. Zero-Cost Constraint
+### 4. Batch Processing
 
-The solution uses:
+The system processes all transcripts automatically:
 
-- Pure Python  
-- Local file storage  
-- No paid APIs  
-- No external dependencies  
+```
+cd scripts
+python run_all.py
+```
 
-Fully reproducible on any machine with Python 3.11+.
+This runs:
+
+- Demo extraction for all demo files
+- Onboarding updates for all onboarding files
+
+No manual babysitting required.
+
+---
+
+### 5. Task Tracker (Mock Integration)
+
+Instead of using Asana (paid API), a zero-cost mock tracker is implemented:
+
+tasks/tasks.json
+
+Each v1 and v2 generation creates a structured tracking entry:
+
+```
+{
+  "account_id": "ACCOUNT1",
+  "version": "v2",
+  "status": "Agent Generated"
+}
+```
+
+This simulates workflow automation integration.
+
+---
+
+### 6. Zero-Cost Compliance
+
+- Pure Python
+- No paid APIs
+- No paid LLM usage
+- No paid orchestration tools
+- Fully local execution
+
+Meets the assignment’s zero-spend requirement.
+
+---
+
+## Example Output Per Account
+
+For each account:
+
+```
+outputs/accounts/ACCOUNT1/
+```
+
+Contains:
+
+- v1/memo.json
+- v1/agent_spec.json
+- v2/memo.json
+- v2/agent_spec.json
+- changes.json
 
 ---
 
@@ -149,51 +236,29 @@ Fully reproducible on any machine with Python 3.11+.
 
 From project root:
 
-cd scripts  
-python run_all.py  
+```
+cd scripts
+python run_all.py
+```
 
-This executes:
+This will:
 
-- Demo pipeline (v1 generation)
-- Onboarding update (v2 generation)
-
-Outputs will be generated inside `outputs/accounts/`.
-
----
-
-## Example Generated Artifacts
-
-Inside:
-
-outputs/accounts/SAMPLE/
-
-You will find:
-
-- v1/memo.json  
-- v1/agent_spec.json  
-- v2/memo.json  
-- v2/agent_spec.json  
-- changes.json  
-
-These demonstrate:
-
-- Structured configuration  
-- Safe merge logic  
-- Version tracking  
+- Process all demo transcripts
+- Apply all onboarding updates
+- Generate versioned outputs
+- Create tracking entries
 
 ---
 
-## What I Would Improve in Production
+## What I Would Improve With Production Access
 
-If production access were available:
-
-- Add structured onboarding form ingestion  
-- Add schema validation layer  
-- Add database-backed configuration storage  
-- Add detailed logging and error handling  
-- Improve extraction robustness using NLP models  
-- Add automated conflict detection reporting  
-- Add UI dashboard for diff visualization  
+- Real task tracker integration (Asana API)
+- Database-backed memo storage
+- Conflict detection dashboard
+- Improved NLP-based extraction
+- UI diff viewer for v1 → v2 comparison
+- Structured onboarding form ingestion
+- Deployment as a containerized service
 
 ---
 
@@ -201,11 +266,12 @@ If production access were available:
 
 This system demonstrates:
 
-- Systems thinking  
-- Structured schema design  
-- Safe configuration versioning  
-- Idempotent automation  
-- Zero-cost reproducibility  
-- Clean separation between exploratory (demo) and confirmed (onboarding) data  
+- Systems thinking
+- Structured schema design
+- Safe versioned configuration management
+- Idempotent automation
+- Batch processing capability
+- Zero-cost reproducibility
+- Clear separation between exploratory (demo) and confirmed (onboarding) data
 
-The workflow behaves like a small internal product rather than a one-off script.
+The workflow behaves like a small internal automation product rather than a one-off script.
