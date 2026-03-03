@@ -3,7 +3,7 @@ import json
 import re
 from copy import deepcopy
 from prompt_builder import save_agent_spec
-
+from task_tracker import create_task
 
 BASE_SCHEMA = {
     "account_id": "",
@@ -107,5 +107,6 @@ if __name__ == "__main__":
             memo = extract_from_text(text, account_id)
             save_memo(memo)
             save_agent_spec(memo, version="v1")
+            create_task(account_id, "v1")
 
             print(f"{account_id} v1 created successfully.")

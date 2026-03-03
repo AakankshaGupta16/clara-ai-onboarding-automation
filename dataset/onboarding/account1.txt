@@ -1,0 +1,9 @@
+Our company name is Apex Fire Protection.
+
+We are open Monday to Friday from 8am to 6pm Eastern Time.
+
+After hours emergency calls should now go directly to the service supervisor instead of the on-call technician.
+
+Transfer timeout should be 60 seconds.
+
+Do not create sprinkler repair jobs in ServiceTrade automatically.

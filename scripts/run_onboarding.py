@@ -3,7 +3,7 @@ import json
 from extractor import extract_from_text
 from merge_engine import merge_memos, save_v2
 from prompt_builder import save_agent_spec
-
+from task_tracker import create_task
 
 def process_onboarding():
     onboarding_folder = "../dataset/onboarding"
@@ -57,6 +57,7 @@ def process_onboarding():
 
             # Regenerate agent spec
             save_agent_spec(updated_memo, version="v2")
+            create_task(account_id, "v2")
 
             print(f"{account_id} v2 created successfully.")
 

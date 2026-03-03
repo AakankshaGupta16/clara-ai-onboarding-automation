@@ -1,0 +1,9 @@
+Our company name is Everest Fire & Alarm.
+
+We are open Monday to Friday from 8am to 5pm Eastern Time.
+
+After hours emergency calls should now route to regional operations manager.
+
+Transfer timeout should be 55 seconds.
+
+Never auto-create fire alarm repair jobs in ServiceTrade.

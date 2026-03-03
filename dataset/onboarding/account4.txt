@@ -1,0 +1,7 @@
+Our company name is Delta Protection Co.
+
+Business hours are Monday through Friday from 8:30am to 6pm Mountain Time.
+
+After hours emergency routing remains same.
+
+Transfer timeout should be 40 seconds.

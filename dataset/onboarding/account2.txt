@@ -1,0 +1,7 @@
+Our company name is Beacon Safety Systems.
+
+Business hours are Monday through Friday from 7am to 5pm Central Time.
+
+Emergency calls after hours should now go to the regional manager instead of monitoring center.
+
+Transfer timeout should be 45 seconds.
