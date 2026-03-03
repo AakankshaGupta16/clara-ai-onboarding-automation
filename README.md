@@ -54,7 +54,7 @@ outputs/accounts/<ACCOUNT_ID>/v2/
 ---
 
 ## Folder Structure
-
+```
 clara_assignment/
 │
 ├── dataset/
@@ -81,7 +81,7 @@ clara_assignment/
 │
 ├── .gitignore
 └── README.md
-
+```
 ---
 
 ## Key Design Decisions
